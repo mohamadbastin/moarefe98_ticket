@@ -61,6 +61,7 @@ class Ad(models.Model):
 class Seat(models.Model):
     class Meta:
         unique_together = ('block', 'gender', 'row', 'number')
+        ordering = ['block', 'row', 'number']
 
     block = models.CharField(max_length=128)
     gender = models.CharField(max_length=2, choices=[('f', 'female'), ('m', 'male')])
