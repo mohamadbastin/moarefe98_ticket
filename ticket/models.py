@@ -33,8 +33,8 @@ class Profile(models.Model):
 class UserService(models.Model):
     # class Meta:
     #     unique_together = ()
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.PROTECT)
+    user = models.ForeignKey(Profile, on_delete=models.PROTECT)
     status = models.BooleanField(default=False)
 
     def __str__(self):
@@ -60,18 +60,68 @@ class Ad(models.Model):
 
 class Seat(models.Model):
     class Meta:
-        unique_together = ('block', 'gender', 'row', 'number')
-        ordering = ['block', 'row', 'number']
+        unique_together = ['number', 'row']
+        ordering = ['row', 'number', ]
 
-    block = models.CharField(max_length=128)
-    gender = models.CharField(max_length=2, choices=[('f', 'female'), ('m', 'male')])
-    row = models.IntegerField()
+    # block = models.CharField(max_length=128)
+    # gender = models.CharField(max_length=2, choices=[('f', 'female'), ('m', 'male')])
+    # row = models.IntegerField()
     number = models.IntegerField()
     title = models.CharField(max_length=128)
-    price = models.ForeignKey(Price, on_delete=models.PROTECT)
+    price = models.ForeignKey(Price, on_delete=models.PROTECT, related_name='seat')
     description = models.CharField(max_length=2048, null=True, blank=True)
-    ad = models.ForeignKey(Ad, on_delete=models.PROTECT, null=True, blank=True)
-    owner = models.OneToOneField(Profile, on_delete=models.PROTECT, null=True, blank=True)
+    ad = models.ForeignKey(Ad, on_delete=models.PROTECT, null=True, blank=True, related_name='seat')
+    row = models.ForeignKey('Row', on_delete=models.PROTECT)
+
+    # owner = models.OneToOneField(Profile, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        return str(self.title) + ': ' + str(self.number) + ' in ' + str(self.row) + ' in ' + str(self.block)
+        return str(self.title) + ' : ' + str(self.number) + ' -> ' + str(self.row)
+
+
+class Row(models.Model):
+    class Meta:
+        ordering = ['block', 'number', ]
+        unique_together = ['number', 'block']
+
+    number = models.IntegerField()
+    # seat = models.ForeignKey(Seat, on_delete=models.PROTECT)
+    block = models.ForeignKey('Block', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return str(self.number) + ' -> ' + str(self.block)
+
+
+class Block(models.Model):
+    class Meta:
+        # ordering = ['row__number']
+        unique_together = ['name', 'gender', 'hall']
+
+    name = models.CharField(max_length=127)
+    gender = models.CharField(max_length=2, choices=[('f', 'female'), ('m', 'male')])
+    # row = models.ForeignKey(Row, on_delete=models.PROTECT)
+    hall = models.ForeignKey('Hall', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return str(self.name) + ' : ' + str(self.gender) + ' : ' + str(self.hall)
+
+
+class Hall(models.Model):
+    name = models.CharField(max_length=128)
+
+    # block = models.ForeignKey(Block, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.name
+
+
+class Event(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
+
+
+class HallEvent(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.PROTECT)
+    hall = models.ForeignKey(Hall, on_delete=models.PROTECT)
