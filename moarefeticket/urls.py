@@ -18,11 +18,12 @@ from django.urls import path, include
 import blog.urls as bu
 from moarefeticket import settings
 from django.conf.urls.static import static
-
+import ticket.urls as tu
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/', include(bu, ))
+    path('blog/', include(bu, )),
+    path('ticket/', include(tu))
 ]
 
 if settings.DEBUG:
