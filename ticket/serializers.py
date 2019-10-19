@@ -8,31 +8,46 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class HallSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hall
-        fields = '__all__'
-
-
-class BlockSerializer(serializers.ModelSerializer):
-    hall = HallSerializer()
-
-    class Meta:
-        model = Block
-        fields = '__all__'
-
-
-class RowSerializer(serializers.ModelSerializer):
-    block = BlockSerializer()
-
-    class Meta:
-        model = Row
-        fields = '__all__'
-
-
 class SeatSerializer(serializers.ModelSerializer):
-    row = RowSerializer()
+    owner = ProfileSerializer(many=True)
 
     class Meta:
         model = Seat
+        fields = ['pk', 'number', 'title', 'price', 'description', 'ad', 'sold', 'reserved', 'owner']
+
+
+class RowSerializer(serializers.ModelSerializer):
+    seat = SeatSerializer(many=True)
+
+    class Meta:
+        model = Row
+        fields = ['pk', 'number', 'seat']
+
+
+class BlockSerializer(serializers.ModelSerializer):
+    row = RowSerializer(many=True)
+
+    class Meta:
+        model = Block
+        fields = ['pk', 'name', 'gender', 'row']
+
+
+class HallSerializer(serializers.ModelSerializer):
+    block = BlockSerializer(many=True)
+
+    class Meta:
+        model = Hall
+        # read_only_fields = ['name', 'block']
+        fields = ['name', 'block']
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = '__all__'
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoice
         fields = '__all__'

@@ -14,4 +14,7 @@ admin.site.register(Block)
 admin.site.register(Hall)
 admin.site.register(Event)
 admin.site.register(HallEvent)
-# admin.site.register(Price)`
+admin.site.register(Ticket)
+admin.site.register(Terminal)
+admin.site.register(PaymentLinks)
+admin.site.register(Invoice)
