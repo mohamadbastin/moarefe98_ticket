@@ -48,6 +48,15 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    seat = SeatSerializer(many=True)
+    profile = ProfileSerializer(many=True)
+
     class Meta:
         model = Invoice
-        fields = '__all__'
+        fields = ['date', 'profile', 'seat']
+
+
+class MajorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Major
+        fields = ['name']

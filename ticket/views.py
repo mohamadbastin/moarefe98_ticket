@@ -85,27 +85,79 @@ class SetInvoice(CreateAPIView):
         amount = data.get('amount')
         make_response = requests.post(make, data={"api_key": api_key, "amount": amount,
                                                   "return_url": "http%3A%2F%2Fapi.moarefe98.ir%2Fadmin%2F"})
-        invoice_key = (make_response.json()["invoice_key"])
         status = (make_response.json()["status"])
 
         if status == 1:
-            Invoice.objects.create(terminal=poolam, amount=amount, key=invoice_key, status='w',)
-            # TODO PAY
+            invoice_key = (make_response.json()["invoice_key"])
+            Invoice.objects.create(terminal=poolam, amount=amount, key=invoice_key, status='w', )
+            pay_link = str(pay) + str(invoice_key)
+            # print (pay)
+            # print(pay_link)
+            return HttpResponseRedirect(pay_link)
         else:
             # TODO CANCEL
+
             pass
 
         return Response('done')
 
 
-# TODO CHECK PAYMENT AND REDIRECT
+class CheckPayView(CreateAPIView):
+    def post(self, request, *args, **kwargs):
+        # TODO CHECK PAYMENT AND REDIRECT
+        pass
 
-# TODO SIGNUP
+
+class SignupView(CreateAPIView):
+    serializer_class = ProfileSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        student_id = data.get('student_id')
+        national_id = data.get('national_id')
+        name = data.get('name')
+        picture = data.get('picture')
+        gender = data.get('gender')
+        major = data.get('major')
+        major = Major.objects.get(pk=major)
+        phone = data.get('phone')
+
+        temp_user = User.objects.create(username=student_id, password=national_id)
+        temp_profile = Profile.objects.create(name=name, phone=phone, major=major, gender=gender, picture=picture,
+                                              student_id=student_id, national_id=national_id, user=temp_user)
+
+        return temp_profile
+
+
+class MajorListView(ListAPIView):
+    serializer_class = MajorSerializer
+    queryset = Major.objects.all()
+
+
+class MajorCreateView(CreateAPIView):
+    serializer_class = MajorSerializer
+
+    def post(self, request, *args, **kwargs):
+        name = request.data.get('name')
+
+        temp_major = Major.objects.create(name=name)
+
+        return temp_major
+
 
 # TODO GET BLOCKS
+class BlockListView(ListAPIView):
+    serializer_class = BlockSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Block.objects.all()
+
+
 # TODO RESERVE SEATS
 # TODO ASSIGN SEATS AND CREATE TICKETS
-# TODO SHOW TICKETS
 
+
+# TODO SHOW TICKETS
+class TicketListView:
+    pass  # TODO HOW TO RETRIEVE TICKETS BOUGHT BY USER NOT ONLY OWNED BY USER
 
 # TODO CREATE BLACKLIST
